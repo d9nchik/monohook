@@ -27,6 +27,15 @@ func TestCPU_getMemoAndPayeeName(t *testing.T) {
 			wantPayeeName: stringPtr("description"),
 		},
 		{
+			name: "description(from smb) and comment",
+			args: args{
+				description: "Вiд: Петро Максим Олександрович",
+				comment:     "Для себе",
+			},
+			wantMemo:      stringPtr("Для себе"),
+			wantPayeeName: stringPtr("Петро Максим Олександрович"),
+		},
+		{
 			name: "description(from smb) and no comment",
 			args: args{
 				description: "from:  description ",

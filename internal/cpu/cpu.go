@@ -65,8 +65,14 @@ func getMemoAndPayeeName(description, comment string) (memo, payeeName *string) 
 }
 
 func shortenString(str string, maxLen int) string {
-	if len(str) > maxLen {
-		return str[:maxLen]
+	var result string
+	counter := 0
+	for _, symbol := range str {
+		if counter > maxLen {
+			break
+		}
+		result += string(symbol)
+		counter++
 	}
 	return str
 }
