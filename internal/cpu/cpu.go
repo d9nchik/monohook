@@ -9,12 +9,12 @@ import (
 )
 
 type CPU struct {
-	ynabClient ynab.Client
+	ynabClient *ynab.Client
 	budgetId   string
 	accountId  string
 }
 
-func NewCPU(ynabClient ynab.Client, budgetId, accountId string) *CPU {
+func NewCPU(ynabClient *ynab.Client, budgetId, accountId string) *CPU {
 	return &CPU{ynabClient: ynabClient, budgetId: budgetId, accountId: accountId}
 }
 
