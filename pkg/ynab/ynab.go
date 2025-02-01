@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 )
 
@@ -44,6 +45,11 @@ func (c *Client) CreateTransaction(budgetID string, transaction *Transaction) er
 		return fmt.Errorf("failed to create request: %w", err)
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusCreated {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("failed to create request: %d (%s)", resp.StatusCode, string(body))
+	}
 
 	// no need for answer for now
 
