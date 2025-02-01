@@ -3,21 +3,18 @@ package cpu
 import (
 	"fmt"
 	"monoHook/pkg/monobank"
+	"monoHook/pkg/ynab"
 	"strings"
 	"time"
-
-	"github.com/brunomvsouza/ynab.go"
-	"github.com/brunomvsouza/ynab.go/api"
-	"github.com/brunomvsouza/ynab.go/api/transaction"
 )
 
 type CPU struct {
-	ynabClient ynab.ClientServicer
+	ynabClient ynab.Client
 	budgetId   string
 	accountId  string
 }
 
-func NewCPU(ynabClient ynab.ClientServicer, budgetId, accountId string) *CPU {
+func NewCPU(ynabClient ynab.Client, budgetId, accountId string) *CPU {
 	return &CPU{ynabClient: ynabClient, budgetId: budgetId, accountId: accountId}
 }
 
@@ -26,18 +23,14 @@ func (c *CPU) AddTransaction(t monobank.Transaction) error {
 
 	memo, payeeName := getMemoAndPayeeName(t.Description, t.Comment)
 
-	_, err := c.ynabClient.Transaction().CreateTransaction(c.budgetId, transaction.PayloadTransaction{
-		AccountID:  c.accountId,
-		Date:       api.Date{Time: time.Now().UTC()},
-		Amount:     t.Amount * 10,
-		Cleared:    transaction.ClearingStatusCleared,
-		Approved:   false,
-		PayeeID:    nil,
-		PayeeName:  payeeName,
-		CategoryID: nil,
-		Memo:       memo,
-		FlagColor:  nil,
-		ImportID:   importId,
+	err := c.ynabClient.CreateTransaction(c.budgetId, &ynab.Transaction{
+		AccountID: c.accountId,
+		Date:      time.Now().Format(time.DateOnly),
+		Amount:    t.Amount * 10,
+		Cleared:   ynab.TransactionCleared,
+		PayeeName: payeeName,
+		Memo:      memo,
+		ImportID:  importId,
 	})
 	if err != nil {
 		return fmt.Errorf("couldn't create transaction, %w", err)

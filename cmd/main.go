@@ -11,7 +11,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/brunomvsouza/ynab.go"
+	"monoHook/pkg/ynab"
 )
 
 func HandleRequest(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events.APIGatewayV2HTTPResponse, error) {
