@@ -9,9 +9,10 @@ import (
 	"monoHook/pkg/monobank"
 	"os"
 
+	"monoHook/pkg/ynab"
+
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"monoHook/pkg/ynab"
 )
 
 func HandleRequest(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events.APIGatewayV2HTTPResponse, error) {
@@ -40,8 +41,6 @@ func HandleRequest(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*
 	err = c.AddTransaction(webHookResponse.Data.Transaction)
 	if err != nil {
 		fmt.Printf("Couldn't create transaction, %v\n", err)
-		answer := events.APIGatewayV2HTTPResponse{StatusCode: 500, Body: "Couldn't create transaction"}
-		return &answer, err
 	}
 
 	return &events.APIGatewayV2HTTPResponse{StatusCode: 200}, nil
