@@ -28,7 +28,7 @@ func HandleRequest(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*
 	err := json.Unmarshal([]byte(event.Body), &webHookResponse)
 	if err != nil {
 		fmt.Printf("Couldn't unmarshal body, %v\n", err)
-		answer := events.APIGatewayV2HTTPResponse{StatusCode: 400, Body: "Invalid format"}
+		answer := events.APIGatewayV2HTTPResponse{StatusCode: 200}
 		return &answer, err
 	}
 
