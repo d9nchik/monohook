@@ -74,3 +74,23 @@ func TestCPU_getMemoAndPayeeName(t *testing.T) {
 
 	}
 }
+
+func TestShortenString(t *testing.T) {
+	tests := []struct {
+		name   string
+		str    string
+		maxLen int
+		want   string
+	}{
+		{name: "shorter than max", str: "hello", maxLen: 10, want: "hello"},
+		{name: "equal to max", str: "hello", maxLen: 5, want: "hello"},
+		{name: "longer than max", str: "hello world", maxLen: 5, want: "hello"},
+		{name: "empty string", str: "", maxLen: 5, want: ""},
+		{name: "unicode truncation", str: "Привіт світ", maxLen: 6, want: "Привіт"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require.Equal(t, tt.want, shortenString(tt.str, tt.maxLen))
+		})
+	}
+}

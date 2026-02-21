@@ -15,9 +15,9 @@ package ynab
 type TransactionClearedType string
 
 const (
-	TransactionCleared    = "cleared"
-	TransactionUncleared  = "uncleared"
-	TransactionReconciled = "reconciled"
+	TransactionCleared    TransactionClearedType = "cleared"
+	TransactionUncleared  TransactionClearedType = "uncleared"
+	TransactionReconciled TransactionClearedType = "reconciled"
 )
 
 type Transaction struct {

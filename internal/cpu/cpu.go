@@ -58,16 +58,11 @@ func getMemoAndPayeeName(description, comment string) (memo, payeeName *string) 
 }
 
 func shortenString(str string, maxLen int) string {
-	var result string
-	counter := 0
-	for _, symbol := range str {
-		if counter > maxLen {
-			break
-		}
-		result += string(symbol)
-		counter++
+	runes := []rune(str)
+	if len(runes) <= maxLen {
+		return str
 	}
-	return str
+	return string(runes[:maxLen])
 }
 
 func stringPtr(str string) *string {

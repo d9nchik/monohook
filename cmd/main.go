@@ -3,44 +3,54 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"log/slog"
 	"monoHook/internal/cfg"
 	"monoHook/internal/cpu"
 	"monoHook/pkg/monobank"
-	"os"
-
 	"monoHook/pkg/ynab"
+	"os"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
-func HandleRequest(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events.APIGatewayV2HTTPResponse, error) {
-	if event.RequestContext.HTTP.Method == "GET" {
-		return &events.APIGatewayV2HTTPResponse{StatusCode: 200}, nil
-	}
+var processor *cpu.CPU
 
-	ynabToken := cfg.GetYnabToken(ctx)
+func init() {
+	ctx := context.Background()
 
-	fmt.Printf("Event: %v\n", event.Body)
-
-	var webHookResponse monobank.WebHookResponse
-	err := json.Unmarshal([]byte(event.Body), &webHookResponse)
+	ynabToken, err := cfg.GetYnabToken(ctx)
 	if err != nil {
-		fmt.Printf("Couldn't unmarshal body, %v\n", err)
-		answer := events.APIGatewayV2HTTPResponse{StatusCode: 200}
-		return &answer, err
+		slog.Error("failed to get YNAB token", "error", err)
+		os.Exit(1)
 	}
 
 	budgetId := os.Getenv("BUDGET_ID")
 	accountId := os.Getenv("ACCOUNT_ID")
+	if budgetId == "" || accountId == "" {
+		slog.Error("BUDGET_ID and ACCOUNT_ID environment variables are required")
+		os.Exit(1)
+	}
 
 	ynabClient := ynab.NewClient(ynabToken)
+	processor = cpu.NewCPU(ynabClient, budgetId, accountId)
+}
 
-	c := cpu.NewCPU(ynabClient, budgetId, accountId)
-	err = c.AddTransaction(webHookResponse.Data.Transaction)
+func HandleRequest(_ context.Context, event events.APIGatewayV2HTTPRequest) (*events.APIGatewayV2HTTPResponse, error) {
+	if event.RequestContext.HTTP.Method == "GET" {
+		return &events.APIGatewayV2HTTPResponse{StatusCode: 200}, nil
+	}
+
+	var webHookResponse monobank.WebHookResponse
+	err := json.Unmarshal([]byte(event.Body), &webHookResponse)
 	if err != nil {
-		fmt.Printf("Couldn't create transaction, %v\n", err)
+		slog.Error("failed to unmarshal body", "error", err)
+		return &events.APIGatewayV2HTTPResponse{StatusCode: 200}, nil
+	}
+
+	err = processor.AddTransaction(webHookResponse.Data.Transaction)
+	if err != nil {
+		slog.Error("failed to create transaction", "error", err)
 	}
 
 	return &events.APIGatewayV2HTTPResponse{StatusCode: 200}, nil

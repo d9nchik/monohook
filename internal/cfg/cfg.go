@@ -3,7 +3,7 @@ package cfg
 import (
 	"context"
 	"encoding/json"
-	"log"
+	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -14,39 +14,32 @@ type YnabToken struct {
 	Token string `json:"token"`
 }
 
-func GetYnabToken(ctx context.Context) string {
+func GetYnabToken(ctx context.Context) (string, error) {
 	secretName := "ynabToken"
 	region := "eu-central-1"
 
 	cfg, err := config.LoadDefaultConfig(ctx, config.WithRegion(region))
 	if err != nil {
-		log.Fatal(err)
+		return "", fmt.Errorf("failed to load AWS config: %w", err)
 	}
 
-	// Create Secrets Manager client
 	svc := secretsmanager.NewFromConfig(cfg)
 
 	input := &secretsmanager.GetSecretValueInput{
 		SecretId:     aws.String(secretName),
-		VersionStage: aws.String("AWSCURRENT"), // VersionStage defaults to AWSCURRENT if unspecified
+		VersionStage: aws.String("AWSCURRENT"),
 	}
 
 	result, err := svc.GetSecretValue(ctx, input)
 	if err != nil {
-		// For a list of exceptions thrown, see
-		// https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
-		log.Fatal(err.Error())
+		return "", fmt.Errorf("failed to get secret value: %w", err)
 	}
 
-	// Decrypts secret using the associated KMS key.
-	secretString := *result.SecretString
-
-	// Your code goes here.
 	var ynabToken YnabToken
-	err = json.Unmarshal([]byte(secretString), &ynabToken)
+	err = json.Unmarshal([]byte(*result.SecretString), &ynabToken)
 	if err != nil {
-		log.Fatal(err.Error())
+		return "", fmt.Errorf("failed to unmarshal secret: %w", err)
 	}
 
-	return ynabToken.Token
+	return ynabToken.Token, nil
 }
