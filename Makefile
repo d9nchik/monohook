@@ -8,6 +8,6 @@ build:
 
 build-monohook:
 	cd build && \
-	CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o bootstrap ../cmd/main.go && \
+	CGO_ENABLED=0 GOARCH=arm64 GOOS=linux go build -o bootstrap ../cmd/main.go && \
 	zip monohook.zip bootstrap && \
 	rm bootstrap
