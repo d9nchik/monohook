@@ -1,6 +1,6 @@
 module monoHook
 
-go 1.24
+go 1.26
 
 require (
 	github.com/aws/aws-lambda-go v1.49.0
