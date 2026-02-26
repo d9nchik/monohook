@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 )
 
 const defaultBaseURL = "https://api.ynab.com/v1"
@@ -20,7 +21,7 @@ func NewClient(ynabToken string) *Client {
 	return &Client{
 		baseURL:    defaultBaseURL,
 		ynabToken:  ynabToken,
-		httpClient: &http.Client{},
+		httpClient: &http.Client{Timeout: 8 * time.Second},
 	}
 }
 
