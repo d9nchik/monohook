@@ -33,7 +33,7 @@ jobs:
         run: |
           mkdir -p build
           cd build
-          GOARCH=amd64 GOOS=linux go build -o bootstrap ../cmd/main.go
+          CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o bootstrap ../cmd/main.go
           zip monohook.zip bootstrap
 
       - uses: aws-actions/configure-aws-credentials@v4
